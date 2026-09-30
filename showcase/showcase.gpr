@@ -10,6 +10,13 @@ project Showcase is
       for Default_Switches ("Ada") use
         ("-gnat2022", "-gnata", "-gnatwa", "-gnatwe", "-gnatVa", "-gnatyg", "-gnatyM100", "-g", "-O2");
    end Compiler;
+   package Linker is
+   for Switches ("Ada") use (
+      "-lSDL3",
+      "-framework",
+      "OpenGL"
+   );
+   end Linker;
    package Binder is
       for Switches ("Ada") use ("-Es");
    end Binder;

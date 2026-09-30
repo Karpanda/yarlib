@@ -5,6 +5,30 @@ on:
   pull_request:
 
 jobs:
+  portability:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out the way a student on Windows does
+        run: git config --global core.autocrlf true
+      - uses: actions/checkout@v4
+      - uses: alire-project/setup-alire@v4
+      - name: Tests (null/software)
+        shell: bash
+        run: |
+          cd tests
+          alr -n build
+          ./bin/tests
+      - name: Showcase links against SDL3 and the OpenGL framework
+        if: runner.os == 'macOS'
+        run: |
+          brew install sdl3
+          cd showcase
+          alr -n build
+
   build-test:
     runs-on: ubuntu-latest
     steps:

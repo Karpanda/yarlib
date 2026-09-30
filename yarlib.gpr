@@ -6,6 +6,10 @@ library project Yarlib is
    type Renderer_Kind is ("software", "opengl");
    Platform : Platform_Kind := external ("YARLIB_PLATFORM", "null");
    Renderer : Renderer_Kind := external ("YARLIB_RENDERER", "software");
+   type OS_Kind is ("linux", "macos", "windows");
+   OS : OS_Kind := external ("YARLIB_OS", "linux");
+   --  Set by alire.toml from the host OS. Only the link line depends on
+   --  it: the OpenGL library has a different name on each OS.
    --  null/software needs nothing and is what the tests use: no window,
    --  frames rendered into memory and readable back.
    --  sdl3/opengl is a game on screen: needs SDL3 and an OpenGL driver.
@@ -38,13 +42,29 @@ library project Yarlib is
    package Linker is
       Libs := ();
       case Platform is
-         when "sdl3" => Libs := Libs & ("-lSDL3");
+         when "sdl3" =>
+            case OS is
+               when "macos" =>
+                  --  Homebrew is outside the default search path:
+                  --  /opt/homebrew on Apple Silicon, /usr/local on Intel.
+                  Libs := Libs & ("-L/opt/homebrew/lib", "-L/usr/local/lib", "-lSDL3");
+               when others =>
+                  Libs := Libs & ("-lSDL3");
+            end case;
          when others => null;
       end case;
       case Renderer is
          when "opengl" =>
             case Platform is
-               when "sdl3" => Libs := Libs & ("-lGL");
+               when "sdl3" =>
+                  case OS is
+                     when "linux"   => Libs := Libs & ("-lGL");
+                     when "windows" => Libs := Libs & ("-lopengl32");
+                     when "macos"   =>
+                        --  No libGL on macOS: OpenGL is a framework. One
+                        --  token, so gprbuild cannot split or reorder it.
+                        Libs := Libs & ("-Wl,-framework,OpenGL");
+                  end case;
                when others => null;
             end case;
          when others => null;

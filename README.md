@@ -165,7 +165,20 @@ Only the two showcases and the editor need it.
   `apt install libsdl3-dev`. Ubuntu 24.04: from source, see
   `.github/workflows/ci.yml`; five minutes.
 
-OpenGL comes with the OS driver; nothing to install.
+OpenGL comes with the OS driver; nothing to install. The link line is
+picked per OS in `yarlib.gpr` (`-lGL`, `-lopengl32`, or the OpenGL
+framework on macOS); Alire sets `YARLIB_OS`. Building without Alire on
+macOS or Windows: pass `-XYARLIB_OS=macos` or `-XYARLIB_OS=windows`.
+
+Windows clones made before `.gitattributes` existed have CRLF sources,
+which the style checks reject. Fix an existing clone once (commit or
+stash local work first):
+
+```
+git pull
+git rm --cached -r -q .
+git reset --hard
+```
 
 ## Driving it from anything
 

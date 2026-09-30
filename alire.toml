@@ -19,3 +19,9 @@ bedrock = { url = "https://github.com/GNAT-Academic-Program/bedrock.git" }
 [gpr-externals]
 YARLIB_PLATFORM = ["null", "sdl3"]
 YARLIB_RENDERER = ["software", "opengl"]
+YARLIB_OS = ["linux", "macos", "windows"]
+
+[gpr-set-externals.'case(os)']
+linux   = { YARLIB_OS = "linux" }
+macos   = { YARLIB_OS = "macos" }
+windows = { YARLIB_OS = "windows" }
