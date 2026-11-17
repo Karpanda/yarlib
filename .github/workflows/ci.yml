@@ -74,9 +74,7 @@ jobs:
           cd showcase
           alr -n build
           printf '# yarlib replay v1\n0 1 k+KEY_D\n30 1 k-KEY_D\nend 60\n' > right.rec
-          # Exit 1 while the batcher is the placeholder (nothing drawn); flip to 0 at milestone 1.
-          xvfb-run -a ./bin/arena --frames 60 --replay right.rec | tee out.txt \
-            || echo "arena: nothing drawn yet (milestone 1)"
+          xvfb-run -a ./bin/arena --frames 60 --replay right.rec > out.txt
           grep -q 'ship at 514 209' out.txt
           test -s shot.png
           cd ../engine/showcase

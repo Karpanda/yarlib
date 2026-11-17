@@ -103,8 +103,4 @@ package Yarlib.Batch with SPARK_Mode is
                                  and then B.Call_Count = B.Call_Count'Old);
    --  Ok = False: full (vertices or calls). Caller flushes and retries.
 
-   Dropped : Natural := 0;
-   --  Quads refused because the placeholder is not written. Reported
-   --  by Close_Window. Delete this when milestone 1 lands.
-
 end Yarlib.Batch;
