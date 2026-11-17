@@ -1,5 +1,4 @@
 with Ada.Numerics.Elementary_Functions;
-with Ada.Text_IO;
 with Bedrock.Buffers;
 with Bedrock.Input;
 with Bedrock.Screen; use type Bedrock.Screen.Pixels;
@@ -76,11 +75,6 @@ package body Yarlib.Core is
          Renderer.Shutdown;
          Platform.Close;
          Ctx.Open := False;
-      end if;
-      if Batch.Dropped > 0 then
-         Ada.Text_IO.Put_Line
-           ("yarlib: batch dropped" & Batch.Dropped'Image & " quads (milestone 1 not done)");
-         Batch.Dropped := 0;
       end if;
    end Close_Window;
 
