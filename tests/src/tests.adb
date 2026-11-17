@@ -24,6 +24,7 @@ with Yarlib.Replay;
 with Test_Support;
 with Yarlib.Shapes;    use Yarlib.Shapes;
 with Yarlib.Textures;  use Yarlib.Textures;
+with Yarlib.Font;
 
 procedure Tests is
 
@@ -36,6 +37,7 @@ procedure Tests is
    procedure Check (Name : String; Cond : Boolean; Needs : Natural := 0);
    procedure Test_Raster;
    procedure Test_Batch;
+   procedure Test_Font;
    procedure Test_Input;
    procedure Test_Core;
    procedure Test_Camera;
@@ -114,6 +116,78 @@ procedure Tests is
       Check ("refuses when full", not Ok and B.Vertex_Count = Max_Vertices, Needs => 1);
       Check ("still well formed", Well_Formed (B));
    end Test_Batch;
+
+   ---------------------------------------------------------------------
+
+   procedure Test_Font is
+      use Yarlib.Font;
+      use Bedrock.Buffers;
+
+      Img : constant Bitmap := Build_Atlas;
+      A   : constant Rectangle := Source ('A');
+      B   : constant Rectangle := Source ('B');
+   begin
+      Check ("font atlas dimensions",
+             Width (Img) = 128 and Height (Img) = 64);
+
+      Check ("font A position",
+             A.X = 8.0 and A.Y = 16.0);
+
+      Check ("font B follows A",
+             B.X = A.X + Scalar (Glyph_Width));
+
+      Check ("font A white pixel",
+             Get (Img, Natural (A.X) + 3,
+                       Natural (A.Y)) = White);
+
+      Check ("font A transparent pixel",
+             Get (Img, Natural (A.X),
+                       Natural (A.Y)) = Transparent);
+      declare
+         All_Glyphs_Visible : Boolean := True;
+         Space_Is_Blank     : Boolean := True;
+      begin
+         for C in Character range '!' .. '~' loop
+            declare
+               R       : constant Rectangle := Source (C);
+               Visible : Boolean := False;
+            begin
+               for Y in 0 .. Glyph_Height - 1 loop
+                  for X in 0 .. Glyph_Width - 1 loop
+                     if Get (Img, Natural (R.X) + X,
+                           Natural (R.Y) + Y) /= Transparent
+                     then
+                        Visible := True;
+                     end if;
+                  end loop;
+               end loop;
+
+               if not Visible then
+                  All_Glyphs_Visible := False;
+                  Put_Line ("Missing glyph: ASCII"
+                           & Integer'Image (Character'Pos (C)));
+               end if;
+            end;
+         end loop;
+
+         declare
+            R : constant Rectangle := Source (' ');
+         begin
+            for Y in 0 .. Glyph_Height - 1 loop
+               for X in 0 .. Glyph_Width - 1 loop
+                  if Get (Img, Natural (R.X) + X,
+                        Natural (R.Y) + Y) /= Transparent
+                  then
+                     Space_Is_Blank := False;
+                  end if;
+               end loop;
+            end loop;
+         end;
+
+         Check ("all printable glyphs visible", All_Glyphs_Visible);
+         Check ("space glyph transparent", Space_Is_Blank);
+      end;
+   end Test_Font;
 
    ---------------------------------------------------------------------
 
@@ -289,6 +363,7 @@ procedure Tests is
 begin
    Test_Raster;
    Test_Batch;
+   Test_Font;
    Test_Input;
    Test_Core;
    Test_Camera;
