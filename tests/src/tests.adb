@@ -16,6 +16,7 @@ with Yarlib;           use Yarlib;
 with Yarlib.Batch;     use Yarlib.Batch;
 with Yarlib.Console;
 with Yarlib.Core;      use Yarlib.Core;
+with Yarlib.Core.Testing;
 with Yarlib.Game_Loop;
 with Yarlib.Renderer;
 with Yarlib.Input;
@@ -25,6 +26,7 @@ with Test_Support;
 with Yarlib.Shapes;    use Yarlib.Shapes;
 with Yarlib.Textures;  use Yarlib.Textures;
 with Yarlib.Font;
+with Yarlib.Text;
 
 procedure Tests is
 
@@ -38,6 +40,7 @@ procedure Tests is
    procedure Test_Raster;
    procedure Test_Batch;
    procedure Test_Font;
+   procedure Test_Text;
    procedure Test_Input;
    procedure Test_Core;
    procedure Test_Camera;
@@ -188,6 +191,58 @@ procedure Tests is
          Check ("space glyph transparent", Space_Is_Blank);
       end;
    end Test_Font;
+
+   ---------------------------------------------------------------------
+
+   procedure Test_Text is
+      use Yarlib.Text;
+   begin
+      Check ("text width at size 8",
+             Measure_Text ("ABC", 8) = 24);
+
+      Check ("text width at size 16",
+             Measure_Text ("abc", 16) = 48);
+
+      Check ("text width at size 24",
+             Measure_Text ("HELLO", 24) = 120);
+
+      Check ("empty text width",
+             Measure_Text ("", 16) = 0);
+
+      Check ("single character width",
+             Measure_Text ("A", 8) = 8);
+
+      Init_Window (64, 32, "text tests");
+
+      Begin_Drawing;
+      Clear_Background (Black);
+      Draw_Text ("A", 0, 0, 8, Red);
+      End_Drawing;
+
+      Check ("text A colored pixel",
+             Same (Get_Screen_Pixel (3, 0), Red));
+
+      Check ("text A transparent pixel",
+             Same (Get_Screen_Pixel (0, 0), Black));
+
+      Check ("text A right edge",
+             Same (Get_Screen_Pixel (7, 0), Black));
+      Begin_Drawing;
+      Clear_Background (Black);
+
+      Draw_Text
+        ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+         0, 0, 8, White);
+
+      Check ("text 40 characters one draw call",
+             Yarlib.Core.Testing.Batch_Call_Count (Default.all) = 1);
+
+      Check ("text 40 characters 240 vertices",
+             Yarlib.Core.Testing.Batch_Vertex_Count (Default.all) = 240);
+
+      End_Drawing;
+      Close_Window;
+   end Test_Text;
 
    ---------------------------------------------------------------------
 
@@ -364,6 +419,7 @@ begin
    Test_Raster;
    Test_Batch;
    Test_Font;
+   Test_Text;
    Test_Input;
    Test_Core;
    Test_Camera;
