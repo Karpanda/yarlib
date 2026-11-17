@@ -47,7 +47,7 @@ library project Yarlib is
                when "macos" =>
                   --  Homebrew is outside the default search path:
                   --  /opt/homebrew on Apple Silicon, /usr/local on Intel.
-                  Libs := Libs & ("-L/opt/homebrew/lib", "-L/usr/local/lib", "-lSDL3");
+                  Libs := Libs & ("-lSDL3");
                when others =>
                   Libs := Libs & ("-lSDL3");
             end case;
